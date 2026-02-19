@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useOrder } from "@/context/OrderContext";
 import { useNavigate } from "react-router-dom";
-import { submitOrder } from "@/lib/api";
-
-const RESTAURANT_ID = 1;
 
 export default function CheckoutPage() {
   const { getTotal, getTax, getTip, tipPercent, setTipPercent, tableNumber, setTableNumber, clearOrder, orderItems } = useOrder();
@@ -13,31 +10,15 @@ export default function CheckoutPage() {
   const [ccv, setCcv] = useState("");
   const [cardName, setCardName] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const subtotal = getTotal() + getTax() + getTip();
 
-  const handleSubmit = async () => {
-    setSubmitError(null);
-    const items = orderItems.map(({ item, quantity }) => ({
-      menu_item_id: Number(item.id),
-      quantity,
-      price_at_order_time: item.price,
-    }));
-    try {
-      await submitOrder({
-        restaurant_id: RESTAURANT_ID,
-        order_type: "dine-in",
-        items,
-      });
-      setSubmitted(true);
-      setTimeout(() => {
-        clearOrder();
-        navigate("/");
-      }, 2000);
-    } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : "Failed to submit order");
-    }
+  const handleSubmit = () => {
+    setSubmitted(true);
+    setTimeout(() => {
+      clearOrder();
+      navigate("/");
+    }, 2000);
   };
 
   if (orderItems.length === 0 && !submitted) {
@@ -140,9 +121,6 @@ export default function CheckoutPage() {
         <span className="text-sm font-semibold text-foreground">Apple Pay</span>
       </div>
 
-      {submitError && (
-        <p className="text-sm text-destructive">{submitError}</p>
-      )}
       <button
         onClick={handleSubmit}
         className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium hover:opacity-90 transition-opacity"

@@ -1,17 +1,10 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getAllergens } from "@/lib/api";
-import { allergyOptionsFallback } from "@/data/menuData";
+import { allergyOptions } from "@/data/menuData";
 import { useNavigate } from "react-router-dom";
 
 export default function FiltersPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const navigate = useNavigate();
-
-  const { data: allergyOptions = allergyOptionsFallback } = useQuery({
-    queryKey: ["allergens"],
-    queryFn: getAllergens,
-  });
 
   const toggle = (opt: string) => {
     setSelected((prev) => prev.includes(opt) ? prev.filter((s) => s !== opt) : [...prev, opt]);

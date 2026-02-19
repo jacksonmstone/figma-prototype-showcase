@@ -1,56 +1,25 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRestaurants, getMenuItems } from "@/lib/api";
-import { apiItemToMenuItem } from "@/data/menuData";
+import { menuItems } from "@/data/menuData";
 import MenuCard from "@/components/MenuCard";
 import { Link } from "react-router-dom";
 import { Filter } from "lucide-react";
 
-const RESTAURANT_ID = 1;
-
 const Index = () => {
   const now = new Date();
   const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
-
-  const { data: restaurants } = useQuery({
-    queryKey: ["restaurants"],
-    queryFn: getRestaurants,
-  });
-  const { data: menuRows, isLoading, error } = useQuery({
-    queryKey: ["menu-items", RESTAURANT_ID],
-    queryFn: () => getMenuItems(RESTAURANT_ID),
-  });
-
-  const restaurantName = restaurants?.[0]?.name ?? "The Morning Table";
-  const menuItems = (menuRows ?? []).map(apiItemToMenuItem);
   const suggested = menuItems.filter((i) => i.category === "suggested");
   const rest = menuItems.filter((i) => i.category === "main");
 
-  if (isLoading) {
-    return (
-      <div className="px-4 py-5 flex items-center justify-center min-h-[200px]">
-        <p className="text-muted-foreground">Loading menu…</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="px-4 py-5 space-y-4">
-        <h1 className="text-2xl text-foreground">{restaurantName}</h1>
-        <p className="text-destructive">Could not load menu. Check that the backend is running.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="px-4 py-5 space-y-6">
+      {/* Restaurant Name */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl text-foreground">{restaurantName}</h1>
+        <h1 className="text-2xl text-foreground">The Morning Table</h1>
         <Link to="/filters" className="text-muted-foreground hover:text-foreground transition-colors">
           <Filter className="w-5 h-5" />
         </Link>
       </div>
 
+      {/* Suggested */}
       <section>
         <h2 className="text-lg text-foreground mb-3">
           Suggested Dishes @ {timeStr}
@@ -62,6 +31,7 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Rest of Menu */}
       <section>
         <h2 className="text-lg text-foreground mb-3 underline underline-offset-4 decoration-border">
           Rest of Menu

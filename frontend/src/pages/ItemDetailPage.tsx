@@ -1,52 +1,23 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getMenuItem, getMenuItems } from "@/lib/api";
-import { apiItemToMenuItem } from "@/data/menuData";
+import { menuItems } from "@/data/menuData";
 import { useOrder } from "@/context/OrderContext";
 import { Plus, ArrowLeft } from "lucide-react";
 import MenuCard from "@/components/MenuCard";
 
-const RESTAURANT_ID = 1;
-
 export default function ItemDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
+  const item = menuItems.find((i) => i.id === id);
   const { addItem } = useOrder();
 
-  const { data: row, isLoading, error } = useQuery({
-    queryKey: ["menu-item", id],
-    queryFn: () => getMenuItem(id!),
-    enabled: !!id,
-  });
-  const { data: allRows } = useQuery({
-    queryKey: ["menu-items", RESTAURANT_ID],
-    queryFn: () => getMenuItems(RESTAURANT_ID),
-    enabled: !!id,
-  });
-
-  const item = row ? apiItemToMenuItem(row) : null;
-  const allItems = (allRows ?? []).map(apiItemToMenuItem);
-  const similar = item ? allItems.filter((i) => i.id !== item.id).slice(0, 2) : [];
-
-  if (!id) {
-    return <div className="p-6 text-center text-muted-foreground">Invalid item</div>;
+  if (!item) {
+    return <div className="p-6 text-center text-muted-foreground">Item not found</div>;
   }
 
-  if (isLoading) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">Loading…</div>
-    );
-  }
-
-  if (error || !item) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">
-        Item not found or could not load.
-      </div>
-    );
-  }
+  const similar = menuItems.filter((i) => i.id !== item.id).slice(0, 2);
 
   return (
     <div className="space-y-5 animate-fade-in">
+      {/* Hero Image */}
       <div className="relative">
         <img src={item.image} alt={item.name} className="w-full aspect-[4/3] object-cover" />
         <Link to="/" className="absolute top-4 left-4 bg-card/80 backdrop-blur-sm p-2 rounded-full">
@@ -88,6 +59,7 @@ export default function ItemDetailPage() {
           Add to Order
         </button>
 
+        {/* Similar Suggestions */}
         <section className="pt-2">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-3">Similar Suggestions</p>
           <div className="grid grid-cols-2 gap-3">
